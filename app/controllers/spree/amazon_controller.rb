@@ -204,14 +204,17 @@ class Spree::AmazonController < Spree::StoreController
 
       if user_address
         current_order.update_column(:ship_address_id, user_address.id)
+        current_order.update_column(:bill_address_id, user_address.id)
       else
         new_address.save!
         current_order.update_column(:ship_address_id, new_address.id)
+        current_order.update_column(:bill_address_id, new_address.id)
       end
     else
       if ship_address.nil? || ship_address.empty?
         new_address.save!
         current_order.update_column(:ship_address_id, new_address.id)
+        current_order.update_column(:bill_address_id, new_address.id)
       else
         ship_address.update_attributes(address_attributes(amazon_address, spree_user_address))
       end
