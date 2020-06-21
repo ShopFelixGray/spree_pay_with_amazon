@@ -9,6 +9,7 @@ require 'amazon/charge'
 require 'amazon/checkout_session'
 require 'amazon/refund'
 require 'amazon/response'
+require 'amazon/delivery_trackers'
 
 module AmazonPay
   @@amazon_signature_algorithm = 'AMZN-PAY-RSASSA-PSS'.freeze

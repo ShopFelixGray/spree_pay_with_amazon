@@ -21,6 +21,10 @@ Spree::Order.class_eval do
     amazon_transaction.try(:order_reference)
   end
 
+  def amazon_pay_order?
+    amazon_transaction.try(:success)
+  end
+
   def confirmation_required?
     spree_confirmation_required? || payments.valid.map(&:payment_method).compact.any? { |pm| pm.is_a? Spree::Gateway::Amazon }
   end
