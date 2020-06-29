@@ -23,7 +23,11 @@ class Spree::AmazonpayController < Spree::CheckoutController
 
     response = AmazonPay::CheckoutSession.create(params)
 
-    render json: response.body
+    if response.success?
+      render json: response.body
+    else
+      render json: {}
+    end
   end
 
   def confirm
