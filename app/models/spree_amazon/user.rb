@@ -8,11 +8,15 @@ module SpreeAmazon
       private
 
       def attributes_from_response(buyer_params)
-        {
-          name: buyer_params[:name],
-          email: buyer_params[:email],
-          uid: buyer_params[:buyerId]
-        }
+        if buyer_params.present?
+          {
+            name: buyer_params[:name],
+            email: buyer_params[:email],
+            uid: buyer_params[:buyerId]
+          }
+        else
+          {}
+        end
       end
     end
 

@@ -5,11 +5,15 @@ module AmazonPay
     def initialize(response)
       @type = self.class.name.demodulize
       @response = response
-      @body = JSON.parse(response.body, symbolize_names: true)
+      @body = JSON.parse(response.body, symbolize_names: true) unless failure?
     end
 
     def success?
       response_code == 200 || response_code == 201
+    end
+
+    def failure?
+      response_code >= 500
     end
 
     def response_code
