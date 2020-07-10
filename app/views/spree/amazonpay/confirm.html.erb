@@ -1,0 +1,34 @@
+<%# %>
+<%# Amazon Payments - Login and Pay for Spree Commerce %>
+<%# %>
+<%# @category    Amazon %>
+<%# @package     Amazon_Payments %>
+<%# @copyright   Copyright (c) 2014 Amazon.com %>
+<%# @license     http://opensource.org/licenses/Apache-2.0  Apache License, Version 2.0 %>
+<%# %>
+<%= javascript_include_tag @gateway.widgets_url %>
+
+<fieldset id="order_details" data-hook>
+  <div class="clear"></div>
+  <legend align="center"><%= Spree.t(:confirm) %></legend>
+  <%= render :partial => 'spree/amazonpay/order_details', :locals => { :order => current_order } %>
+</fieldset>
+
+<%= form_tag spree.payment_amazonpay_path, :class => 'edit_order' do %>
+  <div class="well text-right form-buttons" data-hook="buttons">
+    <%= hidden_field_tag :amazonCheckoutSessionId, params[:amazonCheckoutSessionId] %>
+    <%= submit_tag Spree.t(:place_order), :class => 'btn btn-lg btn-success' %>
+    <script>Spree.disableSaveOnClick();</script>
+  </div>
+<% end %>
+
+<script type="text/javascript" charset="utf-8">
+  amazon.Pay.bindChangeAction("#addressChange", {
+    amazonCheckoutSessionId: "<%= params[:amazonCheckoutSessionId] %>",
+    changeAction: 'changeAddress'
+  });
+  amazon.Pay.bindChangeAction("#paymentChange", {
+    amazonCheckoutSessionId: "<%= params[:amazonCheckoutSessionId] %>",
+    changeAction: 'changePayment'
+  });
+</script>

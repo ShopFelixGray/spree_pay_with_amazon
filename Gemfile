@@ -9,8 +9,7 @@
 ##
 source 'https://rubygems.org'
 
-branch = ENV.fetch('SPREE_BRANCH', 'master')
-gem 'spree' #, github: 'spree/spree', branch: branch
+gem 'spree'
 
 group :development, :test do
   gem 'pry-rails'
@@ -20,8 +19,5 @@ group :test do
   gem 'codeclimate-test-reporter', require: nil
   gem 'webmock'
 end
-
-gem 'pg'
-gem 'mysql2'
 
 gemspec

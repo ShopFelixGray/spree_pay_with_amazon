@@ -10,13 +10,24 @@
 class Spree::AmazonCallbackController < ApplicationController
   skip_before_action :verify_authenticity_token
 
+  # This is the body that is sent from Amazon's IPN
+  #
+  # {
+  #  "merchantId": "Relevant Merchant for the notification",
+  #  "objectType": "one of: Charge, Refund",
+  #  "objectId": "Id of relevant object",
+  #  "notificationType": "STATE_CHANGE",
+  #  "notificationId": "Randomly generated Id, used for tracking only",
+  #  "notificationVersion": "V1"
+  # }
+
   def new
-    response = JSON.parse(request.body.read)
-    if JSON.parse(response["Message"])["NotificationType"] == "PaymentRefund"
-      refund_id = Hash.from_xml(JSON.parse(response["Message"])[ "NotificationData"])["RefundNotification"]["RefundDetails"]["AmazonRefundId"]
+    response = JSON.parse(response.body, symbolize_names: true)
+    if response[:objectType] == 'Refund'
+      refund_id = response[:objectId]
       payment = Spree::LogEntry.where('details LIKE ?', "%#{refund_id}%").last.try(:source)
       if payment
-        l = payment.log_entries.build(details: response.to_yaml)
+        l = payment.log_entries.build(details: response)
         l.save
       end
     end

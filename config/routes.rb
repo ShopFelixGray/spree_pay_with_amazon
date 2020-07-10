@@ -8,14 +8,14 @@
 #
 ##
 Spree::Core::Engine.routes.draw do
-  resource :amazon_order, only: [], controller: "amazon" do
+  resource :amazonpay, only: [], controller: 'amazonpay' do
     member do
-      get 'address'
+      post 'create'
+      get  'confirm'
+      post 'delivery'
       post 'payment'
-      get 'delivery'
-      post 'confirm'
       post 'complete'
-      get 'complete'
+      get  'complete'
     end
   end
 

@@ -17,5 +17,10 @@ en:
     merchant_id: Merchant ID
     aws_access_key_id: MWS Access Key ID
     aws_secret_access_key: MWS Secret Access Key
+    public_key_id: Public Key ID
+    private_key_file_location: Private Key File Location
     order_reference_id: Order Reference ID
     order_processed_unsuccessfully: Your payment could not be processed. Please try to place the order again using another payment method.
+    cannot_ship_to_address: Cannot ship to this address.
+    spree_active_record_error_flash_for_checkout: "We could not complete your order at this time. An item may have become unavailable."
+    uid_not_set: "We couldn't locate an Amazon User ID. Please try again."

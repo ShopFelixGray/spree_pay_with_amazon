@@ -1,46 +1,63 @@
 module SpreeAmazon
   class Address
     class << self
-      def find(order_reference, gateway:, address_consent_token: nil)
-        response = mws(
-          order_reference,
-          gateway: gateway,
-          address_consent_token: address_consent_token,
-        ).fetch_order_data
-        from_response(response)
+      def from_response(response)
+        new attributes_from_response(response[:shippingAddress])
       end
 
-      def from_response(response)
-        return nil if response.destination["PhysicalDestination"].blank?
-        new attributes_from_response(response.destination["PhysicalDestination"])
+      def attributes_from_response(address_params)
+        @attributes = {
+          address1: address_params[:addressLine1],
+          address2: address_params[:addressLine2],
+          first_name: convert_first_name(address_params[:name]) || 'Amazon',
+          last_name: convert_last_name(address_params[:name]) || 'User',
+          city: address_params[:city],
+          zipcode: address_params[:postalCode],
+          state: convert_state(address_params[:stateOrRegion],
+                               convert_country(address_params[:countryCode])),
+          country: convert_country(address_params[:countryCode]),
+          phone: convert_phone(address_params[:phoneNumber]) || '0000000000'
+        }
+      end
+
+      def attributes
+        @attributes
       end
 
       private
 
-      def mws(order_reference, gateway:, address_consent_token: nil)
-        AmazonMws.new(
-          order_reference,
-          gateway: gateway,
-          address_consent_token: address_consent_token,
-        )
+      def convert_first_name(name)
+        return nil if name.blank?
+        name.split(' ').first
       end
 
-      def attributes_from_response(response)
-        {
-          address1: response["AddressLine1"],
-          address2: response["AddressLine2"],
-          name: response["Name"],
-          city: response["City"],
-          zipcode: response["PostalCode"],
-          state_name: response["StateOrRegion"],
-          country_code: response["CountryCode"],
-          phone: response["Phone"]
-        }
+      def convert_last_name(name)
+        return nil if name.blank?
+        names = name.split(' ')
+        names.shift
+        names = names.join(' ')
+        names.blank? ? nil : names
+      end
+
+      def convert_country(country_code)
+        Spree::Country.find_by(iso: country_code)
+      end
+
+      def convert_state(state_name, country)
+        Spree::State.find_by(abbr: state_name, country: country) ||
+          Spree::State.find_by(name: state_name, country: country)
+      end
+
+      def convert_phone(phone_number)
+        return nil if phone_number.blank? ||
+                      phone_number.length < 10 ||
+                      phone_number.length > 15
+        phone_number
       end
     end
 
-    attr_accessor :name, :city, :zipcode, :state_name, :country_code,
-                  :address1, :address2, :phone
+    attr_accessor :first_name, :last_name, :city, :zipcode,
+                  :state, :country, :address1, :address2, :phone
 
     def initialize(attributes)
       attributes.each_pair do |key, value|
@@ -48,25 +65,8 @@ module SpreeAmazon
       end
     end
 
-    def first_name
-      return nil if name.blank?
-      name.split(' ').first
-    end
-
-    def last_name
-      return nil if name.blank?
-      names = name.split(' ')
-      names.shift
-      names = names.join(' ')
-      names.blank? ? nil : names
-    end
-
-    def country
-      @country ||= Spree::Country.find_by(iso: country_code)
-    end
-
-    def state
-      @state ||= Spree::State.find_by(abbr: state_name, country: country)
+    def attributes
+      self.class.attributes
     end
   end
 end
